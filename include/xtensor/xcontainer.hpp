@@ -152,8 +152,8 @@ namespace xt
         storage_type& storage() noexcept;
         const storage_type& storage() const noexcept;
 
-        value_type* data() noexcept;
-        const value_type* data() const noexcept;
+        pointer data() noexcept;
+        const_pointer data() const noexcept;
         const size_type data_offset() const noexcept;
 
         template <class S>
@@ -562,7 +562,7 @@ namespace xt
      * container is empty (data() is not is not dereferenceable in that case)
      */
     template <class D>
-    inline auto xcontainer<D>::data() noexcept -> value_type*
+    inline auto xcontainer<D>::data() noexcept -> pointer
     {
         return storage().data();
     }
@@ -573,7 +573,7 @@ namespace xt
     * container is empty (data() is not is not dereferenceable in that case)
     */
     template <class D>
-    inline auto xcontainer<D>::data() const noexcept -> const value_type*
+    inline auto xcontainer<D>::data() const noexcept -> const_pointer
     {
         return storage().data();
     }
@@ -876,9 +876,11 @@ namespace xt
     inline bool xstrided_container<D>::is_contiguous() const noexcept
     {
         using str_type = typename inner_strides_type::value_type;
-        return m_strides.empty()
-            || (m_layout == layout_type::row_major && m_strides.back() == str_type(1))
-            || (m_layout == layout_type::column_major && m_strides.front() == str_type(1));
+        return is_contiguous_container<storage_type>::value &&
+               ( m_strides.empty()
+                 || (m_layout == layout_type::row_major && m_strides.back() == str_type(1))
+                 || (m_layout == layout_type::column_major && m_strides.front() == str_type(1)));
+
     }
 
     namespace detail
@@ -896,6 +898,18 @@ namespace xt
             (void) size;
             XTENSOR_ASSERT_MSG(c.size() == size, "Trying to resize const data container with wrong size.");
         }
+
+        template <class S, class T>
+        constexpr bool check_resize_dimension(const S&, const T&)
+        {
+            return true;
+        }
+
+        template <class T, size_t N, class S>
+        constexpr bool check_resize_dimension(const std::array<T, N>&, const S& s)
+        {
+            return N == s.size();
+        }
     }
 
     /**
@@ -909,15 +923,20 @@ namespace xt
     template <class S>
     inline void xstrided_container<D>::resize(S&& shape, bool force)
     {
+        XTENSOR_ASSERT_MSG(detail::check_resize_dimension(m_shape, shape),
+                           "cannot change the number of dimensions of xtensor")
         std::size_t dim = shape.size();
         if (m_shape.size() != dim || !std::equal(std::begin(shape), std::end(shape), std::begin(m_shape)) || force)
         {
-            layout_type layout = (D::static_layout == layout_type::dynamic && m_layout == layout_type::dynamic) ? XTENSOR_DEFAULT_LAYOUT : m_layout;
+            if (D::static_layout == layout_type::dynamic && m_layout == layout_type::dynamic)
+            {
+                m_layout = XTENSOR_DEFAULT_LAYOUT;  // fall back to default layout
+            }
             m_shape = xtl::forward_sequence<shape_type, S>(shape);
 
             resize_container(m_strides, dim);
             resize_container(m_backstrides, dim);
-            size_type data_size = compute_strides<D::static_layout>(m_shape, layout, m_strides, m_backstrides);
+            size_type data_size = compute_strides<D::static_layout>(m_shape, m_layout, m_strides, m_backstrides);
             detail::resize_data_container(this->storage(), data_size);
         }
     }
@@ -933,6 +952,8 @@ namespace xt
     template <class S>
     inline void xstrided_container<D>::resize(S&& shape, layout_type l)
     {
+        XTENSOR_ASSERT_MSG(detail::check_resize_dimension(m_shape, shape),
+                           "cannot change the number of dimensions of xtensor")
         if (base_type::static_layout != layout_type::dynamic && l != base_type::static_layout)
         {
             XTENSOR_THROW(std::runtime_error, "Cannot change layout_type if template parameter not layout_type::dynamic.");
@@ -952,6 +973,8 @@ namespace xt
     template <class S>
     inline void xstrided_container<D>::resize(S&& shape, const strides_type& strides)
     {
+        XTENSOR_ASSERT_MSG(detail::check_resize_dimension(m_shape, shape),
+                           "cannot change the number of dimensions of xtensor")
         if (base_type::static_layout != layout_type::dynamic)
         {
             XTENSOR_THROW(std::runtime_error,

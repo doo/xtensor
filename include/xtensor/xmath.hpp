@@ -2307,6 +2307,30 @@ namespace detail {
             }
         };
 
+        struct nan_min
+        {
+            template <class T, class U>
+            constexpr auto operator()(const T lhs, const U rhs) const
+            {
+                // Clunky expression for working with GCC 4.9
+                return math::isnan(lhs) ?
+                       rhs :
+                       (math::isnan(rhs) ? lhs : std::common_type_t<T, U>(detail::make_xfunction<math::minimum<void>>(lhs, rhs)));
+            }
+        };
+
+        struct nan_max
+        {
+            template <class T, class U>
+            constexpr auto operator()(const T lhs, const U rhs) const
+            {
+                // Clunky expression for working with GCC 4.9
+                return math::isnan(lhs) ?
+                       rhs :
+                       (math::isnan(rhs) ? lhs : std::common_type_t<T, U>(detail::make_xfunction<math::maximum<void>>(lhs, rhs)));
+            }
+        };
+
         struct nan_plus
         {
             template <class T, class U>
@@ -2356,6 +2380,36 @@ namespace detail {
     {
         return detail::make_xfunction<detail::nan_to_num_functor>(std::forward<E>(e));
     }
+
+    /**
+     * @ingroup nan_functions
+     * @brief Minimum element over given axes, excluding nans.
+     *
+     * Returns an \ref xreducer for the minimum of elements over given
+     * \em axes, ignoring nans.
+     * @warning Casting the result to an integer type can cause undefined behavior.
+     * @param e an \ref xexpression
+     * @param axes the axes along which the minimum is found (optional)
+     * @param es evaluation strategy of the reducer (optional)
+     * @tparam T the result type. The default is `E::value_type`.
+     * @return an \ref xreducer
+     */
+    XTENSOR_REDUCER_FUNCTION(nanmin, detail::nan_min, typename std::decay_t<E>::value_type, std::nan("0"))
+
+    /**
+     * @ingroup nan_functions
+     * @brief Maximum element along given axes, excluding nans.
+     *
+     * Returns an \ref xreducer for the sum of elements over given
+     * \em axes, replacing nan with 0.
+     * @warning Casting the result to an integer type can cause undefined behavior.
+     * @param e an \ref xexpression
+     * @param axes the axes along which the sum is performed (optional)
+     * @param es evaluation strategy of the reducer (optional)
+     * @tparam T the result type. The default is `E::value_type`.
+     * @return an \ref xreducer
+     */
+    XTENSOR_REDUCER_FUNCTION(nanmax, detail::nan_max, typename std::decay_t<E>::value_type, std::nan("0"))
 
     /**
      * @ingroup nan_functions
@@ -2562,7 +2616,7 @@ namespace detail {
     }
 
     /**
-     * @ingroup red_functions
+     * @ingroup nan_functions
      * @brief Mean of elements over given axes, excluding nans.
      *
      * Returns an \ref xreducer for the mean of elements over given
@@ -2622,7 +2676,7 @@ namespace detail {
     }
 
     /**
-     * @ingroup red_functions
+     * @ingroup nan_functions
      * @brief Compute the variance along the specified axes, excluding nans
      *
      * Returns the variance of the array elements, a measure of the spread of a
@@ -2661,7 +2715,7 @@ namespace detail {
     }
 
     /**
-     * @ingroup red_functions
+     * @ingroup nan_functions
      * @brief Compute the standard deviation along the specified axis, excluding nans.
      *
      * Returns the standard deviation, a measure of the spread of a distribution,

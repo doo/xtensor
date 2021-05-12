@@ -7,6 +7,94 @@
 Changelog
 =========
 
+0.23.9
+------
+
+- Fix data_offset method in xview to compute the strides only once
+  `#2371 https://github.com/xtensor-stack/xtensor/pull/2371`
+
+0.23.8
+------
+
+- Specialize operator= when RHS is chunked
+  `#2367 https://github.com/xtensor-stack/xtensor/pull/2367`
+
+0.23.7
+------
+
+- Fixed chunked_iterator
+  `#2365 https://github.com/xtensor-stack/xtensor/pull/2365`
+
+0.23.6
+------
+
+- Update installation instructions to mention mamba
+  `#2357 https://github.com/xtensor-stack/xtensor/pull/2357`
+- Fixed grid_shape return type
+  `#2360 https://github.com/xtensor-stack/xtensor/pull/2360`
+- Added assertion in resize method
+  `#2361 https://github.com/xtensor-stack/xtensor/pull/2361`
+- Added const chunk iterators
+  `#2362 https://github.com/xtensor-stack/xtensor/pull/2362`
+- Fixed chunk assignment 
+  `#2363 https://github.com/xtensor-stack/xtensor/pull/2363`
+
+0.23.5
+------
+
+- No need to explicitly install blas anymore with latest xtensor-blas
+  `#2343 https://github.com/xtensor-stack/xtensor/pull/2343`
+- FIX for xtensor-stack/xtl/issues/245 
+  `#2344 https://github.com/xtensor-stack/xtensor/pull/2344`
+- Implement grid view
+  `#2346 https://github.com/xtensor-stack/xtensor/pull/2346`
+- Refactoring of xchunked_view 
+  `#2353 https://github.com/xtensor-stack/xtensor/pull/2353`
+
+0.23.4
+------
+
+- Fix edge chunk assignment
+  `#2342 https://github.com/xtensor-stack/xtensor/pull/2342`
+
+0.23.3
+------
+
+- Use the correct version file for TBB since 2021.1
+  `#2334 https://github.com/xtensor-stack/xtensor/pull/2334`
+- Add missing API RTD for nan functions
+  `#2333 https://github.com/xtensor-stack/xtensor/pull/2333`
+- Fixed layout issue in container classes
+  `#2335 https://github.com/xtensor-stack/xtensor/pull/2335`
+- Fixed assignment of a tensor_view on a pseudo-container
+  `#2336 https://github.com/xtensor-stack/xtensor/pull/2336`
+- Fixed return type of data method
+  `#2338 https://github.com/xtensor-stack/xtensor/pull/2338`
+- Fixed assignment to flatten view
+  `#2339 https://github.com/xtensor-stack/xtensor/pull/2339`
+
+0.23.2
+------
+
+- MSVC Build: Wrapped linker flags in quotes
+  `#2299 https://github.com/xtensor-stack/xtensor/pull/2299`
+- Added can_assign and enable_assignable_expression
+  `#2323 https://github.com/xtensor-stack/xtensor/pull/2323`
+- Fix automatically generated tests
+  `#2313 https://github.com/xtensor-stack/xtensor/pull/2313`
+- Fix linspace endpoint bug
+  `#2306 https://github.com/xtensor-stack/xtensor/pull/2306`
+- Added fallback to old behavior in FindTBB.cmake
+  `#2325 https://github.com/xtensor-stack/xtensor/pull/2325`
+- Implement nanmin and nanmax
+  `#2314 https://github.com/xtensor-stack/xtensor/pull/2314`
+- Clean up and add more tests for nanmin and nanmax
+  `#2326 https://github.com/xtensor-stack/xtensor/pull/2326`
+- Fix linespace with only one point
+  `#2327 https://github.com/xtensor-stack/xtensor/pull/2327`
+- Fixed ambiguous call of tile
+  `#2329 https://github.com/xtensor-stack/xtensor/pull/2329`
+
 0.23.1
 ------
 

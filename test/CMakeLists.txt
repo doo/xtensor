@@ -81,7 +81,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR (CMAKE_CXX_COMPILER_ID MATCHES "Intel"
   endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_cxx_std_flag} /MP /bigobj")
-  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
   if (XTENSOR_DISABLE_EXCEPTIONS)
@@ -205,6 +205,8 @@ set(XTENSOR_TESTS
     test_xaxis_iterator.cpp
     test_xaxis_slice_iterator.cpp
     test_xbuffer_adaptor.cpp
+    test_xchunked_array.cpp
+    test_xchunked_view.cpp
     test_xcomplex.cpp
     test_xcsv.cpp
     test_xdatesupport.cpp
@@ -238,7 +240,6 @@ set(XTENSOR_TESTS
     test_extended_xmath_reducers.cpp
     test_extended_xhistogram.cpp
     test_extended_xsort.cpp
-    test_xchunked_array.cpp
     test_sfinae.cpp
 )
 
@@ -271,10 +272,9 @@ foreach(filename IN LISTS XNPY_FILES)
     endforeach()
 endforeach()
 
-set(XTENSOR_PREPROCESS_FILES
-    files/cppy_source/test_xstrided_view_extended.cppy
-)
+file(GLOB XTENSOR_PREPROCESS_FILES files/cppy_source/*.cppy)
 
+# This target should only be run when the test source files have been changed.
 add_custom_target(
     preprocess_cppy
     COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/files/preprocess.py
